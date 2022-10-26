@@ -12,7 +12,6 @@ import numpy as np
 
 
 
-format(math.pi, '.2f')
 #--------------------------------------------------#
 # control2 主要是验证机器人逆运动学，做了一些测试，对应位置控制参数为
 # 这组参数是第一次成功跑的案例
@@ -20,8 +19,8 @@ format(math.pi, '.2f')
 # Max_velocity = 10
 # Position_Gain = 1
 # Velocity_Gain = 1
-# l1 = 24.1
-# l2 = 22.4
+# l1 = 21.1
+# l2 = 19.0
 
 
 #--------------------------------------------------#
@@ -105,7 +104,7 @@ while(1):
     if inital_count > 400:
         if state == 0:   # initial condition
             if t0 <=3.0:
-                x0, z0 = tg.trajectory_sw(t0 % 6, -1.2 + 10, 32.878)
+                x0, z0 = tg.trajectory_sw(t0 % 6, -1.486, 28.35)
                 theta1_rad, theta2_rad = f.inverse_kinematic(x0, z0)
                 f.positions_control(robot, [0, -PI / 4, PI / 2], [0, theta1_rad, theta2_rad],
                                     [0, theta1_rad, theta2_rad],
@@ -115,10 +114,6 @@ while(1):
                 if round(t0,2) == 3.0:
                     A_finish_flag = 1
                     state = 1
-
-
-
-
 
 
 
@@ -146,8 +141,8 @@ while(1):
 
             if start_swing_b:
                 if  t0 % 6 > 3.0  and t0 % 6<= 6.0 :
-                            x0, z0 = tg.trajectory_sw(t0 % 6, -1.2 + 10, 32.878)
-                            x1 ,z1 = tg.trajectory_sw(t1 % 6 ,-1.2+  10 , 32.878)
+                            x0, z0 = tg.trajectory_sw(t0 % 6, -1.486, 28.35)
+                            x1 ,z1 = tg.trajectory_sw(t1 % 6 ,-1.486, 28.35)
 
                             theta1_rad, theta2_rad = f.inverse_kinematic(x0, z0)
                             theta3_rad, theta4_rad = f.inverse_kinematic(x1, z1)
