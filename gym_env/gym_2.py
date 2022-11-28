@@ -19,6 +19,7 @@ class Dog(gym.Env):
             dtype=np.float32
         )
 
+
         self.observation_space = spaces.Box(
             low=np.array([-1, -1, -1]),
             high=np.array([1,  1,  1]),
