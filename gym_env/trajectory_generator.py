@@ -10,10 +10,10 @@ class Bezier:
         self.Tswing = 1    # unit = s
         self.Tsupport = 1  # unit = s
         self.step_length  = 0.1
-        self.P0 = np.array([0,0,0])
+        self.P0 = np.array([0,   0,  0])
         self.P1 = np.array([0.01,0.1,0])
         self.P2 = np.array([0.09,0.1,0])
-        self.P3 = np.array([self.step_length,0,0])
+        self.P3 = np.array([self.step_length, 0 , 0])
 
 
     def curve_generator(self,t):
@@ -22,10 +22,7 @@ class Bezier:
                 3*self.P1*t* ((1-t)**2) + \
                 3*self.P2*(t**2)*(1-t)+\
                 self.P3*(t**3)
-
-
         return point
-
 
 
 if __name__ == '__main__':
@@ -39,17 +36,16 @@ if __name__ == '__main__':
 
     while(True):
         point=tg.curve_generator(t)
-
         x_set.append(point[0])
         z_set.append(point[1])
         y_set.append(point[2])
-
-        ax1.plot3D(x_set,z_set,y_set,'gray')
-
-
-
-
-
+        ax1.plot3D(x_set,y_set,z_set,'red')
+        ax1.set_xlim(-.1, 0.2)
+        ax1.set_ylim(-.1, 0.2)
+        ax1.set_zlim(-.1, 0.2)
+        plt.pause(0.1)
+        plt.ioff()
+        t = t + 0.1
 
 
 
