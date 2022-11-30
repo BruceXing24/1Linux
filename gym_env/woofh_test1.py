@@ -2,6 +2,8 @@ import pybullet as p
 import pybullet_data as pd
 import time
 from woofh_leg import Leg
+from woofh_robot import Robot
+
 
 PI = 3.1415926
 p.connect(p.GUI)
@@ -15,6 +17,7 @@ robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.7], useMaximalCoordinate
 
 #  change the outlook
 p.changeVisualShape(objectUniqueId=robot, linkIndex=-1, rgbaColor=[1, 1, 0, 1])
+
 for i in range(4):
     p.changeVisualShape(objectUniqueId=robot, linkIndex=i * 5, rgbaColor=[0.5, 0.5, 0.5, 1])
     p.changeVisualShape(objectUniqueId=robot, linkIndex=i * 5 + 1, rgbaColor=[0.5, 0.5, 0.5, 1])
@@ -27,11 +30,19 @@ joint_info = p.getNumJoints(bodyUniqueId=robot)
 print("joint_info==={}".format(joint_info))
 
 count = 0
-
+leg = Leg("4legs")
+woofh = Robot(robot)
 while True:
     time.sleep(0.1)
     p.stepSimulation()
-    leg = Leg("4legs")
+
+    # posi , ori = robot.get_Global_Coor()
+    # print("global_position is{},ori is {}".format(posi,ori))
+    linear_V, anguler_V = woofh.get_imu()
+    print("linear_V=={},angular_V=={}".format(linear_V,anguler_V))
+
+
+
 
     # test for all shoulders
     # leg.positions_control(robot, [PI/4, 0, 0],[PI/4, 0, 0],[PI/4, 0, 0],[PI/4, 0, 0] )
