@@ -14,17 +14,18 @@ class Dog(gym.Env):
         self.render = render
 
         self.action_space = spaces.Box(
-            low=np.array([-np.pi, -np.pi]),
-            high=np.array([np.pi, np.pi]),
-            dtype=np.float32
+            low=np.array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]),
+            high=np.array([1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]),
+            dtype=np.float64
         )
-
 
         self.observation_space = spaces.Box(
             low=np.array([-1, -1, -1]),
             high=np.array([1,  1,  1]),
-            dtype=np.float64
+            dtype=np.float32
         )
+
+
         self.physics_client_id = p.connect(p.GUI if self.render else p.DIRECT)
         self.step_num = 0
         self.leg = Leg.LegIK()
@@ -69,10 +70,16 @@ class Dog(gym.Env):
     def seed(self, seed=None):
         pass
 
+    def _reward(self,state):
+        pass
+
+
+
+
     def apply_action(self, action):
         assert isinstance(action, list) or isinstance(action, np.ndarray)
         if not hasattr(self, "robot"):
-            assert Exception("robot hasn't been loaded in ")
+            assert Exception("robot hasn't been loaded in")
 
         motor1_angle, motor2_angle = action
         motor1_angle = np.clip(motor1_angle, -np.pi, np.pi)

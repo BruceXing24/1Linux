@@ -25,9 +25,8 @@ p.changeVisualShape(objectUniqueId=robot, linkIndex=20, rgbaColor=[0.5, 0.5, 0.5
 p.changeVisualShape(objectUniqueId=robot, linkIndex=21, rgbaColor=[0.5, 0.5, 0.5, 1])
 joint_info = p.getNumJoints(bodyUniqueId=robot)
 print("joint_info==={}".format(joint_info))
+
 count = 0
-
-
 
 while True:
     time.sleep(0.1)
