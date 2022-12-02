@@ -3,24 +3,27 @@ import numpy as np
 
 
 class Robot():
-    def __init__(self,robot):
+    def __init__(self,robot,physics_client_id):
         self.robot = robot
         self._foot_id_list =  [14, 19, 9, 4]
+        '''                     FL         FR       BL      BR'''
+        self.motor_id_list = [17,18,19, 12,13,14, 7,8,9, 2,3,4]
+        self.physics_client_id  = physics_client_id
         self.observation = self.get_observation()
 
     def get_base_height(self):
-        posi, _ = p.getBasePositionAndOrientation(self.robot)
+        posi, _ = p.getBasePositionAndOrientation(self.robot,physicsClientId = self.physics_client_id)
         return np.array(posi[2])
 
     def get_Global_Coor(self):
-        posi, _ = p.getBasePositionAndOrientation(self.robot)
+        posi, _ = p.getBasePositionAndOrientation(self.robot, physicsClientId = self.physics_client_id)
         return np.array(posi)
 
 
     def get_imu(self):
-        _,ori = p.getBasePositionAndOrientation(self.robot)
+        _,ori = p.getBasePositionAndOrientation(self.robot, physicsClientId = self.physics_client_id )
         ori =  p.getEulerFromQuaternion(ori)
-        linear_V, anguler_V = p.getBaseVelocity(self.robot)
+        linear_V, anguler_V = p.getBaseVelocity(self.robot,physicsClientId = self.physics_client_id )
         return np.array(linear_V), np.array(anguler_V) , np.array(ori)
 
 
@@ -29,7 +32,7 @@ class Robot():
         FRC = 0
         BLC = 0
         BRC = 0
-        contacts = p.getContactPoints()
+        contacts = p.getContactPoints(physicsClientId = self.physics_client_id)
         if len(contacts)>0:
             for contact in contacts:
                 if contact[4] == 19:
@@ -42,13 +45,27 @@ class Robot():
                     BRC = 1
         return np.array([FLC, FRC, BLC, BRC])
 
+
+    def get_reward_items(self):
+        x_coor =self.get_Global_Coor()[0]
+        linerVxyz, angulerWxyz, ori = self.get_imu()
+        height = self.get_base_height()
+
+        return np.hstack((x_coor,linerVxyz,angulerWxyz,ori,height))
+
+
     def get_motor_angle(self):
-        joints = p.getJointStates(self.robot)
-        FLA = np.array([ joints[17][0],joints[18][0],joints[19][0] ],dtype=np.float32)
-        FRA = np.array([ joints[12][0],joints[13][0],joints[14][0] ],dtype=np.float32)
-        BLA = np.array([ joints[7][0],joints[8][0],joints[9][0] ],dtype=np.float32)
-        BRA = np.array([ joints[2][0],joints[3][0],joints[4][0] ],dtype=np.float32)
-        return  np.hstack((FLA,FRA,BLA,BRA))
+        motor_angle = []
+        try:
+            motor_angle = [p.getJointState(bodyUniqueId=self.robot, jointIndex=motor_id, physicsClientId = self.physics_client_id)[0] for motor_id in self.motor_id_list]
+        except:
+            print("can not get angle")
+        # print(len(joints))
+        # FLA = np.array([ joints[0][0],joints[1][0],joints[2][0] ],dtype=np.float32)
+        # FRA = np.array([ joints[3][0],joints[4][0],joints[5][0] ],dtype=np.float32)
+        # BLA = np.array([ joints[6][0],joints[7][0],joints[8][0] ],dtype=np.float32)
+        # BRA = np.array([ joints[9][0],joints[10][0],joints[11][0] ],dtype=np.float32)
+        return  np.array(motor_angle)
 
 
     def get_observation(self):
@@ -58,4 +75,17 @@ class Robot():
         joints_angle =self.get_motor_angle()
         contacts = self.get_contact()
         return np.hstack((rpy,linearXyz,angularXyz, joints_angle,contacts))
+
+    def get_observation_dim(self):
+        return len(self.get_observation())
+
+
+    def get_observation_upper_bound(self):
+        upper_bound = np.array([0.0]*self.get_observation_dim())
+        upper_bound[0:3] =  2.0 * np.pi
+        upper_bound[3:9] = np.inf
+        upper_bound[9:21] = np.pi
+        upper_bound[21:] = 1.0
+        return upper_bound
+
 

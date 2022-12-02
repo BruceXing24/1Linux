@@ -11,9 +11,9 @@ class Leg():
         self.Velocity_Gain = 1.0
         self.force = 10
         self.Max_velocity = 5
-
         #                    LF      RF     LB    RB
         self.joint_angle  = [0,0,0, 0,0,0 ,0,0,0 ,0,0,0]
+
 
 
     def positions_control(self, body_name, LF, RF, LB, RB):

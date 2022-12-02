@@ -6,44 +6,66 @@ from gym import spaces
 import numpy as np
 import pybullet as p
 import pybullet_data as pd
-import Leg
+from woofh_leg import Leg
 from woofh_robot import Robot
+import time
+
+
 
 class Dog(gym.Env):
     def __init__(self, render: bool = False , number_motor = 12):
         self.render = render
-
+        # for action space
         self.action_dim = number_motor
         self.action_bound = 1
         action_high = np.array([self.action_bound]*12)
-
         self.action_space = spaces.Box(
             low=-action_high, high=action_high,
             dtype=np.float32
         )
+        self.physics_client_id = p.connect(p.GUI if self.render else p.DIRECT)
+        self.step_num = 0
+        self.leg = Leg("4leg")
+        self.robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
+                                flags=p.URDF_USE_IMPLICIT_CYLINDER,baseOrientation=p.getQuaternionFromEuler([np.pi / 2, 0, 0]))
+        self.woofh = Robot(self.robot, physics_client_id=self.physics_client_id)
 
+
+        # for observation_space
+        observation_high = self.woofh.get_observation_upper_bound()
         self.observation_space = spaces.Box(
-            low=np.array([-2.0*np.pi, -1, -1]),
-            high=np.array([1,  1,  1]),
+            low  = -observation_high,  high = observation_high,
             dtype=np.float64
         )
 
-        self.physics_client_id = p.connect(p.GUI if self.render else p.DIRECT)
-        self.step_num = 0
+        self.dt = 0.02
+        self.forward_weight = 0.01
+        self.direction_weight = -0.001
+        self.shake_weight = -0.01
+        self.height_weight = -0.01
+        self.joint_weight = -0.001
 
-        self.leg = Leg.LegIK()
-        self.robot = p.loadURDF("mini_cheetah/mini_cheetah.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
-                                flags=p.URDF_USE_IMPLICIT_CYLINDER)
-        self.woofh = Robot(self.robot)
+        self.pre_coorX= 0.0000
+        self.pre_height = 0.0000
+
+
 
     def step(self, action):
-
         self.apply_action(action)
         p.stepSimulation(physicsClientId=self.physics_client_id)
         self.step_num += 1
         state = self.get_observation()
-        reward = 1
-        if state[0] > np.pi/6 or self.step_num > 36000:
+
+        reward_items  = self.woofh.get_reward_items()
+
+        reward = self._reward(reward_items)
+        print("reward==={}".format(reward))
+
+        self.pre_coorX = reward_items[0]
+        self.pre_height = reward_items[10]
+
+        # condition for stop
+        if self.step_num > 36000:
             done = True
         else:
             done = False
@@ -57,15 +79,10 @@ class Dog(gym.Env):
         p.setGravity(0, 0, -9.8)
         p.setAdditionalSearchPath(pd.getDataPath())
         self.planeID = p.loadURDF("plane.urdf")
-        self.robot = p.loadURDF("mini_cheetah/mini_cheetah.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
-                                flags=p.URDF_USE_IMPLICIT_CYLINDER)
+        self.robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
+                                flags=p.URDF_USE_IMPLICIT_CYLINDER,baseOrientation=p.getQuaternionFromEuler([np.pi / 2, 0, 0]))
         #  change the outlook
-        p.changeVisualShape(objectUniqueId=self.robot, linkIndex=-1, rgbaColor=[1, 1, 0, 1])
-        for i in range(4):
-            p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4, rgbaColor=[1, 1, 1, 1])
-            p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4 + 1, rgbaColor=[0.5, 0.5, 0.5, 1])
-            p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4 + 2, rgbaColor=[0.5, 0.5, 0.5, 1])
-            p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4 + 3, rgbaColor=[1, 0, 0, 1])
+        self.woofh = Robot(self.robot, physics_client_id=self.physics_client_id)
         return self.get_observation()
 
 
@@ -75,11 +92,22 @@ class Dog(gym.Env):
     def seed(self, seed=None):
         pass
 
-    def _reward(self,state):
-        pass
+    def _reward(self,reward_items):
+        x_coor = reward_items[0]
+        linearX = reward_items[1]
+        linearY,linearZ  = reward_items[2:4]
+        wx ,wy ,wz = reward_items[4:7]
+        r , p , y  = reward_items[7:10]
+        height = reward_items [10]
 
+        reward = self.forward_weight *   (x_coor-self.pre_coorX) + \
+                 self.forward_weight *    np.exp(-4*linearX) + \
+                 self.direction_weight * (linearY**2+linearZ**2)+ \
+                 self.shake_weight*      ( np.exp( -1/(wx**2+wy**2+wz**2) ))+ \
+                 self.shake_weight*      ( r**2/2+p**2/2+y**2)+ \
+                 self.height_weight *    ( height-self.pre_height)
 
-
+        return reward
 
     def apply_action(self, action):
         assert isinstance(action, list) or isinstance(action, np.ndarray)
@@ -89,22 +117,21 @@ class Dog(gym.Env):
         # motor1_angle, motor2_angle = action
         # motor1_angle = np.clip(motor1_angle, -np.pi, np.pi)
         # motor2_angle = np.clip(motor2_angle, -np.pi, np.pi)
-        # self.leg.positions_control(self.robot, [motor1_angle, motor2_angle, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
+        self.leg.positions_control(self.robot, action[0][0:3],action[0][3:6],action[0][6:9],action[0][9:12])
+
+
 
     def get_observation(self):
         if not hasattr(self,"robot"):
             assert Exception("robot hasn't been loaded in ")
-        _, baseOri = p.getBasePositionAndOrientation(self.robot,physicsClientId=self.physics_client_id)
+        observation = self.woofh.get_observation()
+        return observation
 
-        rpy_angle = p.getEulerFromQuaternion(baseOri)
-        rpy_angle_norm = np.array(rpy_angle)/np.pi
-        print(type(rpy_angle_norm))
-        return rpy_angle_norm
+
 
 
 
     def close(self):
-
         if self.physics_client_id>=0:
             p.disconnect()
         self.physics_client_id = -1
@@ -115,5 +142,17 @@ class Dog(gym.Env):
 if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
 
-    env = Dog()
-    check_env(env)
+    env = Dog(render=True)
+    obs = env.reset()
+    p.setRealTimeSimulation(1)
+
+    while True:
+        time.sleep(0.5)
+        action = np.random.rand(1,12)
+        state ,reward ,done, _ = env.step(action)
+        print("state==={}".format(state))
+
+        if done:
+            break
+
+    # check_env(env)

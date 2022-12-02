@@ -6,14 +6,15 @@ from woofh_robot import Robot
 
 
 PI = 3.1415926
-p.connect(p.GUI)
-p.setGravity(0, 0, -9.8)
+id = p.connect(p.GUI)
+p.setGravity(0, 0, 0)
 orn = p.getQuaternionFromEuler([PI / 2, 0, 0])
 p.setAdditionalSearchPath(pd.getDataPath())
 planeID = p.loadURDF("plane.urdf")
 # objectUid = p.loadURDF("random_urdfs/000/000.urdf", basePosition=[0.7, 0, 0.7])
 robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
                    flags=p.URDF_USE_IMPLICIT_CYLINDER, baseOrientation=orn)
+
 
 #  change the outlook
 p.changeVisualShape(objectUniqueId=robot, linkIndex=-1, rgbaColor=[1, 1, 0, 1])
@@ -29,19 +30,24 @@ joint_info = p.getNumJoints(bodyUniqueId=robot)
 print("joint_info==={}".format(joint_info))
 
 count = 0
-woofh = Robot(robot)
+woofh = Robot(robot,physics_client_id = id)
 
 while True:
     time.sleep(0.1)
     p.stepSimulation()
     leg = Leg("4legs")
 
-
-    leg.positions_control(robot, [0,0,PI/4], [0,0,PI/4], [0,0,PI/4], [0,0,PI/4])
-
+    #
+    # leg.positions_control(robot, [0,0,PI/4], [0,0,PI/4], [0,0,PI/4], [0,0,PI/4])
     contacts = woofh.get_contact()
     print(contacts)
 
+
+
+    motor_angle = woofh.get_motor_angle()
+    observation = woofh.get_observation()
+    print(motor_angle)
+    print(observation)
 
 
 
