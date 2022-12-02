@@ -12,8 +12,17 @@ class Leg():
         self.force = 10
         self.Max_velocity = 5
 
+        #                    LF      RF     LB    RB
+        self.joint_angle  = [0,0,0, 0,0,0 ,0,0,0 ,0,0,0]
+
 
     def positions_control(self, body_name, LF, RF, LB, RB):
+
+        self.joint_angle[0:3] += LF
+        self.joint_angle[3:6] += RF
+        self.joint_angle[6:9] += LB
+        self.joint_angle[9:] += RB
+
         p.setJointMotorControl2(bodyIndex=body_name,
                                 jointIndex=2,
                                 controlMode=p.POSITION_CONTROL,  targetPosition=-RB[0],

@@ -2,6 +2,8 @@ import pybullet as p
 import pybullet_data as pd
 import time
 from woofh_leg import Leg
+from woofh_robot import Robot
+
 
 PI = 3.1415926
 p.connect(p.GUI)
@@ -27,11 +29,21 @@ joint_info = p.getNumJoints(bodyUniqueId=robot)
 print("joint_info==={}".format(joint_info))
 
 count = 0
+woofh = Robot(robot)
 
 while True:
     time.sleep(0.1)
     p.stepSimulation()
     leg = Leg("4legs")
+
+
+    leg.positions_control(robot, [0,0,PI/4], [0,0,PI/4], [0,0,PI/4], [0,0,PI/4])
+
+    contacts = woofh.get_contact()
+    print(contacts)
+
+
+
 
     # test for all shoulders
     # leg.positions_control(robot, [PI/4, 0, 0],[PI/4, 0, 0],[PI/4, 0, 0],[PI/4, 0, 0] )

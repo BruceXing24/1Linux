@@ -7,31 +7,37 @@ import numpy as np
 import pybullet as p
 import pybullet_data as pd
 import Leg
-
+from woofh_robot import Robot
 
 class Dog(gym.Env):
-    def __init__(self, render: bool = False):
+    def __init__(self, render: bool = False , number_motor = 12):
         self.render = render
 
-        self.action_space = spaces.Box(
-            low=np.array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]),
-            high=np.array([1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]),
-            dtype=np.float64
-        )
+        self.action_dim = number_motor
+        self.action_bound = 1
+        action_high = np.array([self.action_bound]*12)
 
-        self.observation_space = spaces.Box(
-            low=np.array([-1, -1, -1]),
-            high=np.array([1,  1,  1]),
+        self.action_space = spaces.Box(
+            low=-action_high, high=action_high,
             dtype=np.float32
         )
 
+        self.observation_space = spaces.Box(
+            low=np.array([-2.0*np.pi, -1, -1]),
+            high=np.array([1,  1,  1]),
+            dtype=np.float64
+        )
 
         self.physics_client_id = p.connect(p.GUI if self.render else p.DIRECT)
         self.step_num = 0
-        self.leg = Leg.LegIK()
 
+        self.leg = Leg.LegIK()
+        self.robot = p.loadURDF("mini_cheetah/mini_cheetah.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
+                                flags=p.URDF_USE_IMPLICIT_CYLINDER)
+        self.woofh = Robot(self.robot)
 
     def step(self, action):
+
         self.apply_action(action)
         p.stepSimulation(physicsClientId=self.physics_client_id)
         self.step_num += 1
@@ -60,7 +66,6 @@ class Dog(gym.Env):
             p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4 + 1, rgbaColor=[0.5, 0.5, 0.5, 1])
             p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4 + 2, rgbaColor=[0.5, 0.5, 0.5, 1])
             p.changeVisualShape(objectUniqueId=self.robot, linkIndex=i * 4 + 3, rgbaColor=[1, 0, 0, 1])
-
         return self.get_observation()
 
 
@@ -81,10 +86,10 @@ class Dog(gym.Env):
         if not hasattr(self, "robot"):
             assert Exception("robot hasn't been loaded in")
 
-        motor1_angle, motor2_angle = action
-        motor1_angle = np.clip(motor1_angle, -np.pi, np.pi)
-        motor2_angle = np.clip(motor2_angle, -np.pi, np.pi)
-        self.leg.positions_control(self.robot, [motor1_angle, motor2_angle, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
+        # motor1_angle, motor2_angle = action
+        # motor1_angle = np.clip(motor1_angle, -np.pi, np.pi)
+        # motor2_angle = np.clip(motor2_angle, -np.pi, np.pi)
+        # self.leg.positions_control(self.robot, [motor1_angle, motor2_angle, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0])
 
     def get_observation(self):
         if not hasattr(self,"robot"):
@@ -96,7 +101,10 @@ class Dog(gym.Env):
         print(type(rpy_angle_norm))
         return rpy_angle_norm
 
+
+
     def close(self):
+
         if self.physics_client_id>=0:
             p.disconnect()
         self.physics_client_id = -1
