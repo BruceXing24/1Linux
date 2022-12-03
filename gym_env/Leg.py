@@ -29,7 +29,7 @@ class LegIK():
         self.Position_Gain = 0.1
         self.Velocity_Gain = 0.1
         self.Max_velocity = 10
-        self.force = 10
+        self.force = 3.5
 
 
     def IK(self,x,y,z):

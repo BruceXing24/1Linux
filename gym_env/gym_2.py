@@ -45,9 +45,8 @@ class Dog(gym.Env):
         self.height_weight = -0.01
         self.joint_weight = -0.001
 
-        self.pre_coorX= 0.0000
-        self.pre_height = 0.0000
-
+        self.pre_coorX= -0.04867
+        self.pre_height = 0.140
 
 
     def step(self, action):

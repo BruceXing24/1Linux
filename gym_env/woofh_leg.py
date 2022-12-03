@@ -2,7 +2,7 @@ import pybullet as p
 import numpy
 
 class Leg():
-    def __init__(self, name, shoulder2hip=0.1, hip2knee=0.1, knee2end=0.05 ):
+    def __init__(self, name, shoulder2hip=0.047, hip2knee=0.1, knee2end=0.105):
         self.l1 = shoulder2hip
         self.l2 = hip2knee
         self.l3 = knee2end
@@ -29,6 +29,7 @@ class Leg():
                                 positionGain=self.Position_Gain, velocityGain=self.Velocity_Gain,
                                 force=self.force,                 maxVelocity=self.Max_velocity
                                 )
+
         p.setJointMotorControl2(bodyIndex=body_name,
                                 jointIndex = 3,
                                 controlMode = p.POSITION_CONTROL,
@@ -38,6 +39,7 @@ class Leg():
                                 force=self.force,
                                 maxVelocity=self.Max_velocity
                                 )
+
         p.setJointMotorControl2(bodyIndex=body_name,
                                 jointIndex=4,
                                 controlMode=p.POSITION_CONTROL,
@@ -47,6 +49,7 @@ class Leg():
                                 force=self.force,
                                 maxVelocity=self.Max_velocity
                                 )
+
         p.setJointMotorControl2(bodyIndex=body_name,
                                 jointIndex=7 ,
                                 controlMode=p.POSITION_CONTROL,
