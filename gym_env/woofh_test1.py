@@ -13,7 +13,7 @@ orn = p.getQuaternionFromEuler([PI / 2, 0, 0])
 p.setAdditionalSearchPath(pd.getDataPath())
 planeID = p.loadURDF("plane.urdf")
 # objectUid = p.loadURDF("random_urdfs/000/000.urdf", basePosition=[0.7, 0, 0.7])
-robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.3],  useMaximalCoordinates=False,
+robot = p.loadURDF("../woofh/urdf/woofh_d.urdf", [0, 0, 0.4],  useMaximalCoordinates=False,
                    flags=p.URDF_USE_IMPLICIT_CYLINDER,       baseOrientation=orn         )
 
 
@@ -32,7 +32,7 @@ print("joint_info==={}".format(joint_info))
 
 count = 0
 woofh = Robot(robot,physics_client_id = id)
-tg  = Bezier()
+tg  = Bezier(step_length=0.05)
 t = 0.0
 leg = Leg("4legs")
 
@@ -51,7 +51,6 @@ while True:
 
 
 
-
     # inital base_mass = 0.24680316805231461
     # dt1=np.deg2rad(27)   # -27  -30
     # dt2=np.deg2rad(45)   #  90   45
@@ -62,19 +61,23 @@ while True:
     # angle = count/100.0
     # leg.positions_control2(  robot, [0,  -np.pi/6, np.pi/2], [0, -np.pi/6, np.pi/2],
     #                          [0, -np.pi/6, np.pi/2], [0, -np.pi/6, np.pi/2]        )
-    elif count>100:
-     #     0.041 0.139
 
-        time.sleep(0.5)
-        p.stepSimulation()
-        x,_,z = tg.curve_generator(t)
-        # print(x,z)
-        theta2, theta3 = leg.IK_2D(0.050,0.139)
+    # elif count>100:
+    #  #     0.041 0.139
+    #
+    #     time.sleep(0.2)
+    #     p.stepSimulation()
+    #     x,_,z = tg.curve_generator(t)
+    #     # print(x,z)
+    #     theta2, theta3 = leg.IK_2D(x ,z)
+    #     #
+    #     print("theta2=={}, theta3=={}".format(np.rad2deg(theta2), np.rad2deg(theta3)))
+    #
+    #     leg.positions_control2(  robot, [0, theta2 ,theta3], [0, -np.pi/6, np.pi/2],
+    #                              [0, -np.pi/6, np.pi/2], [0, -np.pi/6, np.pi/2]        )
+    #     t += 0.05
 
-        print("theta2=={}, theta3=={}".format(np.rad2deg(theta2), np.rad2deg(theta3)))
-        leg.positions_control2(  robot, [0, 0, np.pi/2], [0, -np.pi/6, np.pi/2],
-                                 [0, -np.pi/6, np.pi/2], [0, -np.pi/6, np.pi/2]        )
-        t += 0.05
+
     # print(angle)
     # contacts = woofh.get_contact()
     # print(contacts)

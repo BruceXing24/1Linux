@@ -44,6 +44,7 @@ class Dog(gym.Env):
         self.shake_weight = -0.01
         self.height_weight = -0.01
         self.joint_weight = -0.001
+        self.contact_weight  = 0.001
 
         self.pre_coorX= -0.04867
         self.pre_height = 0.140
@@ -112,12 +113,22 @@ class Dog(gym.Env):
         r , p , y  = reward_items[7:10]
         height = reward_items [10]
 
+        contacts = reward_items[11:]
+        contact_reward = -1.
+        if contacts[0]==1 and contacts[2]==1 and contacts[1]==0 and contacts[3]==0:
+            contact_reward = 1.
+        if contacts[0]==0 and contacts[2]==0 and contacts[1]==1 and contacts[3]==1:
+            contact_reward = 1.
+
+
+
         reward = self.forward_weight *   (x_coor-self.pre_coorX) + \
                  self.forward_weight *    np.exp(-4*linearX) + \
                  self.direction_weight * (linearY**2+linearZ**2)+ \
                  self.shake_weight*      ( np.exp( -1/(wx**2+wy**2+wz**2) ))+ \
                  self.shake_weight*      ( r**2/2+p**2/2+y**2)+ \
-                 self.height_weight *    ( height-self.pre_height)
+                 self.height_weight *    ( height-self.pre_height) +\
+                 self.contact_weight* contact_reward
 
         return reward
 
@@ -171,7 +182,7 @@ class Dog(gym.Env):
         LB[1:] = action[0][7:9] * np.deg2rad(15)
         RB[1:] = action[0][10:] * np.deg2rad(15)
 
-        return  np.hstack((LF, RF , LB, RB))+self.angleFromReferen
+        return  np.hstack((LF, RF , LB, RB))+ self.angleFromReferen
 
 
 
@@ -181,11 +192,11 @@ class Dog(gym.Env):
 
 if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
-    from stable_baselines3 import PPO2
+    from stable_baselines3 import PPO
     env = Dog(render=True)
     obs = env.reset()
     p.setRealTimeSimulation(1)
-    model = PPO2(policy = "MlpPolicy",env = env
+    model = PPO(policy = "MlpPolicy",env = env
 
 
 
@@ -194,7 +205,8 @@ if __name__ == '__main__':
 
     while True:
         time.sleep(0.5)
-        action = np.random.rand(1,12)
+        action = model.predict(obs)
+        action = np.array(action,dtype=object)
         state ,reward ,done, _ = env.step(action)
         print("state==={}".format(state))
 

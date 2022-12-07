@@ -1,0 +1,580 @@
+<?xml version="1.0" ?>
+<robot name="ying_1_backup" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find ying_1_backup_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find ying_1_backup_description)/urdf/ying_1_backup.trans" />
+<xacro:include filename="$(find ying_1_backup_description)/urdf/ying_1_backup.gazebo" />
+<link name="base_link">
+  <inertial>
+    <origin xyz="4.855021692372712e-05 0.018691998760551106 -0.005000000007131349" rpy="0 0 0"/>
+    <mass value="0.24680316805231461"/>
+    <inertia ixx="0.000216" iyy="0.001001" izz="0.00084" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_holders_left_front_link_1">
+  <inertial>
+    <origin xyz="-0.0054323690773051825 0.05761902564937107 0.011882136682221212" rpy="0 0 0"/>
+    <mass value="0.024938142346881957"/>
+    <inertia ixx="1.7e-05" iyy="6e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.056694 0.032839 -0.03664" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_left_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.056694 0.032839 -0.03664" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_left_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_holders_right_front_link_1">
+  <inertial>
+    <origin xyz="-0.005432320532860177 -0.011955717764261149 -0.01566607024986054" rpy="0 0 0"/>
+    <mass value="0.024938142346881957"/>
+    <inertia ixx="1.7e-05" iyy="6e-06" izz="1.5e-05" ixy="-0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.056694 -0.03664 0.042839" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_right_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.056694 -0.03664 0.042839" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_right_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_holders_right_rear_link_1">
+  <inertial>
+    <origin xyz="0.005388100007664168 -0.0182199743506292 -0.09532158789869458" rpy="0 0 0"/>
+    <mass value="0.024938142346881957"/>
+    <inertia ixx="1.7e-05" iyy="6e-06" izz="1.5e-05" ixy="-0.0" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0566 -0.043 -0.03664" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_right_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0566 -0.043 -0.03664" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_right_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_holders_left_rear_link_1">
+  <inertial>
+    <origin xyz="0.0053881000076640775 -0.011955717764260944 0.015681587898694456" rpy="0 0 0"/>
+    <mass value="0.024938142346881957"/>
+    <inertia ixx="1.7e-05" iyy="6e-06" izz="1.5e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0566 -0.03664 -0.033" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_left_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0566 -0.03664 -0.033" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_holders_left_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_L_R_link_1">
+  <inertial>
+    <origin xyz="-0.007046480417696607 -0.02489388072214358 0.004500001285208749" rpy="0 0 0"/>
+    <mass value="0.249097070745745"/>
+    <inertia ixx="4.3e-05" iyy="4e-05" izz="6.7e-05" ixy="-1e-06" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0766 -0.0498 -0.0555" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_L_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0766 -0.0498 -0.0555" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_L_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_L_F_link_1">
+  <inertial>
+    <origin xyz="0.007032878179303079 -0.024893572835871357 0.004520263521065396" rpy="0 0 0"/>
+    <mass value="0.249097070745745"/>
+    <inertia ixx="4.3e-05" iyy="4e-05" izz="6.7e-05" ixy="1e-06" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.076658 -0.049964 -0.055299" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_L_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.076658 -0.049964 -0.055299" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_L_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_R_R_link_1">
+  <inertial>
+    <origin xyz="-0.007045311452857028 -0.024893572835871812 -0.004499998701523095" rpy="0 0 0"/>
+    <mass value="0.249097070745745"/>
+    <inertia ixx="4.3e-05" iyy="4e-05" izz="6.7e-05" ixy="-1e-06" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0765 -0.049964 0.0655" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_R_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0765 -0.049964 0.0655" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_R_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Motor_R_F_link_1">
+  <inertial>
+    <origin xyz="0.007032927120860802 -0.02489388072098405 -0.004519915242844355" rpy="0 0 0"/>
+    <mass value="0.249097070745745"/>
+    <inertia ixx="4.3e-05" iyy="4e-05" izz="6.7e-05" ixy="1e-06" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.076758 -0.0498 0.065282" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_R_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.076758 -0.0498 0.065282" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Motor_R_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="HIP_L_F_link_1">
+  <inertial>
+    <origin xyz="0.02813479686952569 -0.009187174472252198 -0.01357944508716652" rpy="0 0 0"/>
+    <mass value="0.08810450834639108"/>
+    <inertia ixx="2.3e-05" iyy="3.1e-05" izz="3.1e-05" ixy="-0.0" iyz="-1e-06" ixz="-1e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.097501 -0.034964 0.07" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_L_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.097501 -0.034964 0.07" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_L_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="HIP_R_R_link_1">
+  <inertial>
+    <origin xyz="-0.028173628630975764 -0.009187174679247224 0.013499851832037155" rpy="0 0 0"/>
+    <mass value="0.08810450834639108"/>
+    <inertia ixx="2.3e-05" iyy="3.1e-05" izz="3.1e-05" ixy="1e-06" iyz="1e-06" ixz="-1e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.097671 -0.034964 -0.059739" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_R_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.097671 -0.034964 -0.059739" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_R_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="HIP_R_F_link_1">
+  <inertial>
+    <origin xyz="0.028134626977164692 -0.009187482167727249 0.013579444819687855" rpy="0 0 0"/>
+    <mass value="0.08810450579995474"/>
+    <inertia ixx="2.3e-05" iyy="3.1e-05" izz="3.1e-05" ixy="-0.0" iyz="1e-06" ixz="1e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0976 -0.0348 -0.06" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_R_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0976 -0.0348 -0.06" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_R_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="HIP_L_R_link_1">
+  <inertial>
+    <origin xyz="-0.028173578754190243 -0.00918748247573781 -0.013499500705300399" rpy="0 0 0"/>
+    <mass value="0.08810450579995437"/>
+    <inertia ixx="2.3e-05" iyy="3.1e-05" izz="3.1e-05" ixy="1e-06" iyz="-1e-06" ixz="1e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.097771 -0.0348 0.069722" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_L_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.097771 -0.0348 0.069722" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/HIP_L_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Left_Upper_front_link_1">
+  <inertial>
+    <origin xyz="-0.03897205149065103 -0.014620965442240303 -0.008335107879174769" rpy="0 0 0"/>
+    <mass value="0.04398181047406509"/>
+    <inertia ixx="1e-05" iyy="5.1e-05" izz="5.5e-05" ixy="-1.5e-05" iyz="1e-06" ixz="3e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.115011 -0.035029 0.1126" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Left_Upper_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.115011 -0.035029 0.1126" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Left_Upper_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Left_Upper_rear_link_1">
+  <inertial>
+    <origin xyz="-0.03899613290419929 -0.01462027332737768 -0.008224638315113567" rpy="0 0 0"/>
+    <mass value="0.04398181047406509"/>
+    <inertia ixx="1e-05" iyy="5.1e-05" izz="5.5e-05" ixy="-1.5e-05" iyz="1e-06" ixz="3e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.135702 -0.034864 0.112214" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Left_Upper_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.135702 -0.034864 0.112214" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/Left_Upper_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RIGHT_Upper_front_link_1">
+  <inertial>
+    <origin xyz="-0.0389722204618182 -0.01462027332711325 0.008335107866178137" rpy="0 0 0"/>
+    <mass value="0.0439818104616029"/>
+    <inertia ixx="1e-05" iyy="5.1e-05" izz="5.5e-05" ixy="-1.5e-05" iyz="-1e-06" ixz="-3e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.11511 -0.034864 -0.1026" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/RIGHT_Upper_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.11511 -0.034864 -0.1026" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/RIGHT_Upper_front_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RIGHT_Upper_rear_link_1">
+  <inertial>
+    <origin xyz="-0.03899618185905873 -0.014620965440817674 0.008223989190688744" rpy="0 0 0"/>
+    <mass value="0.0439818104616029"/>
+    <inertia ixx="1e-05" iyy="5.1e-05" izz="5.5e-05" ixy="-1.5e-05" iyz="-1e-06" ixz="-3e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.135602 -0.035029 -0.102232" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/RIGHT_Upper_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.135602 -0.035029 -0.102232" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/RIGHT_Upper_rear_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="LowerLeg_L_F_link_1">
+  <inertial>
+    <origin xyz="0.029154805955036084 -0.019625604675916723 0.007499999999991319" rpy="0 0 0"/>
+    <mass value="0.031101277617374377"/>
+    <inertia ixx="1e-05" iyy="4.1e-05" izz="5e-05" ixy="1.8e-05" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.020143 -0.003406 0.125" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_L_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.020143 -0.003406 0.125" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_L_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="LowerLeg_R_R_link_1">
+  <inertial>
+    <origin xyz="0.029133554690158242 -0.01962560467653591 0.007582831942164234" rpy="0 0 0"/>
+    <mass value="0.031101277617374377"/>
+    <inertia ixx="1e-05" iyy="4.1e-05" izz="5e-05" ixy="1.8e-05" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.230463 -0.003406 -0.099362" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_R_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.230463 -0.003406 -0.099362" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_R_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="LowerLeg_L_R_link_1">
+  <inertial>
+    <origin xyz="0.029176603638395665 -0.019625912561052103 0.0074175189332229274" rpy="0 0 0"/>
+    <mass value="0.031101277617374377"/>
+    <inertia ixx="1e-05" iyy="4.1e-05" izz="5e-05" ixy="1.8e-05" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.230606 -0.003242 0.124345" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_L_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.230606 -0.003242 0.124345" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_L_R_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="LowerLeg_R_F_link_1">
+  <inertial>
+    <origin xyz="0.02915463699049572 -0.019625912562829688 0.007499999986725209" rpy="0 0 0"/>
+    <mass value="0.031101277617374377"/>
+    <inertia ixx="1e-05" iyy="4.1e-05" izz="5e-05" ixy="1.8e-05" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.020242 -0.003242 -0.1" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_R_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.020242 -0.003242 -0.1" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="woofh/meshes/LowerLeg_R_F_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Motor_holders_left_front_joint" type="fixed">
+  <origin xyz="-0.056694 -0.032839 0.03664" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Motor_holders_left_front_link_1"/>
+</joint>
+
+<joint name="Motor_holders_right_front_joint" type="fixed">
+  <origin xyz="-0.056694 0.03664 -0.042839" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Motor_holders_right_front_link_1"/>
+</joint>
+
+<joint name="Motor_holders_right_rear_joint" type="fixed">
+  <origin xyz="0.0566 0.043 0.03664" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Motor_holders_right_rear_link_1"/>
+</joint>
+
+<joint name="Motor_holders_left_rear_joint" type="fixed">
+  <origin xyz="0.0566 0.03664 0.033" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Motor_holders_left_rear_link_1"/>
+</joint>
+
+<joint name="Motor_L_R_joint" type="fixed">
+  <origin xyz="0.02 0.01316 0.0225" rpy="0 0 0"/>
+  <parent link="Motor_holders_left_rear_link_1"/>
+  <child link="Motor_L_R_link_1"/>
+</joint>
+
+<joint name="Motor_L_F_joint" type="fixed">
+  <origin xyz="-0.019964 0.082803 0.018659" rpy="0 0 0"/>
+  <parent link="Motor_holders_left_front_link_1"/>
+  <child link="Motor_L_F_link_1"/>
+</joint>
+
+<joint name="Motor_R_R_joint" type="fixed">
+  <origin xyz="0.0199 0.006964 -0.10214" rpy="0 0 0"/>
+  <parent link="Motor_holders_right_rear_link_1"/>
+  <child link="Motor_R_R_link_1"/>
+</joint>
+
+<joint name="Motor_R_F_joint" type="fixed">
+  <origin xyz="-0.020064 0.01316 -0.022443" rpy="0 0 0"/>
+  <parent link="Motor_holders_right_front_link_1"/>
+  <child link="Motor_R_F_link_1"/>
+</joint>
+
+<joint name="HIP_L_F_joint" type="continuous">
+  <origin xyz="0.021001 -0.015 -0.0045" rpy="0 0 0"/>
+  <parent link="Motor_R_R_link_1"/>
+  <child link="HIP_L_F_link_1"/>
+  <axis xyz="1.0 0.0 0.0"/>
+</joint>
+
+<joint name="HIP_R_R_joint" type="continuous">
+  <origin xyz="-0.021013 -0.015 0.00444" rpy="0 0 0"/>
+  <parent link="Motor_L_F_link_1"/>
+  <child link="HIP_R_R_link_1"/>
+  <axis xyz="-0.999996 -0.0 -0.002844"/>
+</joint>
+
+<joint name="HIP_R_F_joint" type="continuous">
+  <origin xyz="0.021 -0.015 0.0045" rpy="0 0 0"/>
+  <parent link="Motor_L_R_link_1"/>
+  <child link="HIP_R_F_link_1"/>
+  <axis xyz="1.0 0.0 0.0"/>
+</joint>
+
+<joint name="HIP_L_R_joint" type="continuous">
+  <origin xyz="-0.021013 -0.015 -0.00444" rpy="0 0 0"/>
+  <parent link="Motor_R_F_link_1"/>
+  <child link="HIP_L_R_link_1"/>
+  <axis xyz="-0.999996 0.0 0.002844"/>
+</joint>
+
+<joint name="Left_Upper_front_joint" type="continuous">
+  <origin xyz="0.01751 6.5e-05 -0.0426" rpy="0 0 0"/>
+  <parent link="HIP_L_F_link_1"/>
+  <child link="Left_Upper_front_link_1"/>
+  <axis xyz="-0.0 -0.0 1.0"/>
+</joint>
+
+<joint name="Left_Upper_rear_joint" type="continuous">
+  <origin xyz="-0.037931 6.4e-05 -0.042492" rpy="0 0 0"/>
+  <parent link="HIP_L_R_link_1"/>
+  <child link="Left_Upper_rear_link_1"/>
+  <axis xyz="-0.002844 -0.0 -0.999996"/>
+</joint>
+
+<joint name="RIGHT_Upper_front_joint" type="continuous">
+  <origin xyz="0.01751 6.4e-05 0.0426" rpy="0 0 0"/>
+  <parent link="HIP_R_F_link_1"/>
+  <child link="RIGHT_Upper_front_link_1"/>
+  <axis xyz="0.0 -0.0 1.0"/>
+</joint>
+
+<joint name="RIGHT_Upper_rear_joint" type="continuous">
+  <origin xyz="-0.037931 6.5e-05 0.042493" rpy="0 0 0"/>
+  <parent link="HIP_R_R_link_1"/>
+  <child link="RIGHT_Upper_rear_link_1"/>
+  <axis xyz="0.002844 -0.0 -0.999996"/>
+</joint>
+
+<joint name="LowerLeg_L_F_joint" type="continuous">
+  <origin xyz="-0.094868 -0.031623 -0.0124" rpy="0 0 0"/>
+  <parent link="Left_Upper_front_link_1"/>
+  <child link="LowerLeg_L_F_link_1"/>
+  <axis xyz="0.0 0.0 -1.0"/>
+</joint>
+
+<joint name="LowerLeg_R_R_joint" type="continuous">
+  <origin xyz="-0.094861 -0.031623 -0.00287" rpy="0 0 0"/>
+  <parent link="RIGHT_Upper_rear_link_1"/>
+  <child link="LowerLeg_R_R_link_1"/>
+  <axis xyz="-0.002844 0.0 0.999996"/>
+</joint>
+
+<joint name="LowerLeg_L_R_joint" type="continuous">
+  <origin xyz="-0.094904 -0.031622 -0.012131" rpy="0 0 0"/>
+  <parent link="Left_Upper_rear_link_1"/>
+  <child link="LowerLeg_L_R_link_1"/>
+  <axis xyz="-0.002844 -0.0 -0.999996"/>
+</joint>
+
+<joint name="LowerLeg_R_F_joint" type="continuous">
+  <origin xyz="-0.094868 -0.031622 -0.0026" rpy="0 0 0"/>
+  <parent link="RIGHT_Upper_front_link_1"/>
+  <child link="LowerLeg_R_F_link_1"/>
+  <axis xyz="0.0 -0.0 1.0"/>
+</joint>
+
+</robot>

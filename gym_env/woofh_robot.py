@@ -50,8 +50,8 @@ class Robot():
         x_coor =self.get_Global_Coor()[0]
         linerVxyz, angulerWxyz, ori = self.get_imu()
         height = self.get_base_height()
-
-        return np.hstack((x_coor,linerVxyz,angulerWxyz,ori,height))
+        contacts = self.get_contact()
+        return np.hstack((x_coor,linerVxyz,angulerWxyz,ori,height,contacts))
 
 
     def get_motor_angle(self):

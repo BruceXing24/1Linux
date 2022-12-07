@@ -48,13 +48,15 @@ class Leg():
         return [-theta1,-theta2,-theta3]
 
     def IK_2D(self,x,z):
+        x = -x
+
         cos_theta3 =( x**2+z**2-(self.l2**2+self.l3**2) )/( 2 * self.l2 * self.l3 )
         theta3_rad = np.arccos(cos_theta3)
         cos_alpha1 =( self.l2**2+x**2+z**2-self.l3**2)/(2 * self.l2 * np.sqrt(x**2+z**2))
         alpha1 = np.arccos(cos_alpha1)
         theta2_rad =  alpha1 - np.arctan2(x,z)
 
-        print("alpha=={},alpha2=={}".format(np.rad2deg(alpha1), np.rad2deg( np.arctan2(x,z)  )))
+        # print("alpha=={},alpha2=={}".format(np.rad2deg(alpha1), np.rad2deg( np.arctan2(x,z)  )))
 
         return -theta2_rad, theta3_rad
 
@@ -182,8 +184,8 @@ class Leg():
     def positions_control2(self, body_name, LF, RF, LB, RB):
         # calibration for the urdf error
 
-
-        LF[1] = LF[1] + np.deg2rad(3)
+        LF[1] = LF[1] + np.pi/13
+        # LF[1] = LF[1] + np.deg2rad(3)
         # LF[2] = LF[2] - np.deg2rad(45)
         LF[2] = LF[2]-np.deg2rad(135)
 
