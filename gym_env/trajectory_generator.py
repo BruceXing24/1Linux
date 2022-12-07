@@ -10,10 +10,16 @@ class Bezier:
         self.Tswing = 1    # unit = s
         self.Tsupport = 1  # unit = s
         self.step_length  = 0.1
-        self.P0 = np.array([0,   0,  0])
-        self.P1 = np.array([0.01,0.1,0])
-        self.P2 = np.array([0.09,0.1,0])
-        self.P3 = np.array([self.step_length, 0 , 0])
+        # theta1 =-30 theta2=90
+        self.initial_x = 0.041
+        self.initial_y = 0.139
+        self.initial_z = 0.047
+
+        # transfer to world coordinate
+        self.P0 = np.array([0 + self.initial_x,             self.initial_z, 0  - self.initial_y ] )
+        self.P1 = np.array([0.01 + self.initial_x,          self.initial_z, 0.1- self.initial_y ] )
+        self.P2 = np.array([0.09 + self.initial_x,          self.initial_z, 0.1- self.initial_y ] )
+        self.P3 = np.array([self.step_length+self.initial_x,self.initial_z, 0  - self.initial_y ] )
 
 
     def curve_generator(self,t):
@@ -46,7 +52,10 @@ if __name__ == '__main__':
         plt.pause(0.1)
         plt.ioff()
         t = t + 0.1
-
+        if t>1.0:
+            print(x_set)
+            print(y_set)
+            print(z_set)
 
 
     # 二维测试

@@ -58,6 +58,7 @@ class LegIK():
 
         return [theta1,-theta2,-theta3]
 
+
     def IK_L(self,x,y,z):
         D=(x**2+y**2+z**2-self.l1**2-self.l2**2-self.l3**2)/(2*self.l2*self.l3)
 

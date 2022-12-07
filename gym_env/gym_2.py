@@ -9,7 +9,7 @@ import pybullet_data as pd
 from woofh_leg import Leg
 from woofh_robot import Robot
 import time
-
+from trajectory_generator import Bezier
 
 
 class Dog(gym.Env):
@@ -48,8 +48,21 @@ class Dog(gym.Env):
         self.pre_coorX= -0.04867
         self.pre_height = 0.140
 
+        # params for gait controller
+        self.gait_time = 0
+        self.control_frequency = 20   # hz
+        self.angleFromReferen = np.array([0]*12)
+
+
 
     def step(self, action):
+
+        # tg_trajectory
+
+        # self.angleFromReferen = tg.curve(self.gait_time)
+        #
+
+
         self.apply_action(action)
         p.stepSimulation(physicsClientId=self.physics_client_id)
         self.step_num += 1
@@ -113,9 +126,13 @@ class Dog(gym.Env):
         if not hasattr(self, "robot"):
             assert Exception("robot hasn't been loaded in")
 
-        # motor1_angle, motor2_angle = action
-        # motor1_angle = np.clip(motor1_angle, -np.pi, np.pi)
-        # motor2_angle = np.clip(motor2_angle, -np.pi, np.pi)
+
+        # action_on_motor =self.merge_action(action)
+        # self.leg.positions_control(self.robot, action_on_motor[0:3], action_on_motor[3:6],
+        #                           action_on_motor[6:9], action_on_motor[9:12])
+
+
+
         self.leg.positions_control(self.robot, action[0][0:3],action[0][3:6],action[0][6:9],action[0][9:12])
 
 
@@ -135,15 +152,45 @@ class Dog(gym.Env):
             p.disconnect()
         self.physics_client_id = -1
 
+    def merge_action(self,action):
+        action_on_motor = np.array([0]*12)
+        LF = [0, 0, 0]
+        RF = [0, 0, 0]
+        LB = [0, 0, 0]
+        RB = [0, 0, 0]
+
+        # shoulder optimize signal from -5° to 5 °
+        LF[0] = action[0][0] * np.deg2rad(5)
+        RF[0] = action[0][3] * np.deg2rad(5)
+        LB[0] = action[0][6] * np.deg2rad(5)
+        RB[0] = action[0][9] * np.deg2rad(5)
+
+        # hip,knee optimize signal from -15° to 15 °
+        LF[1:] = action[0][1:3] * np.deg2rad(15)
+        RF[1:] = action[0][4:6] * np.deg2rad(15)
+        LB[1:] = action[0][7:9] * np.deg2rad(15)
+        RB[1:] = action[0][10:] * np.deg2rad(15)
+
+        return  np.hstack((LF, RF , LB, RB))+self.angleFromReferen
+
+
+
+
 
 
 
 if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
-
+    from stable_baselines3 import PPO2
     env = Dog(render=True)
     obs = env.reset()
     p.setRealTimeSimulation(1)
+    model = PPO2(policy = "MlpPolicy",env = env
+
+
+
+                 )
+
 
     while True:
         time.sleep(0.5)
