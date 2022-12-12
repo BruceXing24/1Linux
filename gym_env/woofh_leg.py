@@ -7,12 +7,16 @@ class Leg():
         self.l2 = hip2knee
         self.l3 = knee2end
         self.name = name
-        self.Position_Gain = 1.0
-        self.Velocity_Gain = 1.0
+        self.Position_Gain = .5
+        self.Velocity_Gain = .5
         self.force = 10
         self.Max_velocity = 5
         #                    LF      RF     LB    RB
         self.joint_angle  = [0,0,0, 0,0,0 ,0,0,0 ,0,0,0]
+
+        self.t1 = 0.
+        self.t2 = -0.5
+
 
 
     def InverseK(self,x,y,z):
@@ -26,7 +30,9 @@ class Leg():
                                                                                      self.l2 + self.l3 * np.cos(theta3_rad))
         return -theta1_rad, theta2_rad, theta3_rad
 
-
+    def time_reset(self):
+        self.t1 = 0.
+        self.t2 = -0.5
 
     def IK_R(self,x,y,z):
         D=(x**2+y**2+z**2-self.l1**2-self.l2**2-self.l3**2)/(2*self.l2*self.l3)
@@ -49,14 +55,17 @@ class Leg():
 
     def IK_2D(self,x,z):
         x = -x
-
         cos_theta3 =( x**2+z**2-(self.l2**2+self.l3**2) )/( 2 * self.l2 * self.l3 )
         theta3_rad = np.arccos(cos_theta3)
-        cos_alpha1 =( self.l2**2+x**2+z**2-self.l3**2)/(2 * self.l2 * np.sqrt(x**2+z**2))
-        alpha1 = np.arccos(cos_alpha1)
-        theta2_rad =  alpha1 - np.arctan2(x,z)
+        # cos_alpha1 =( self.l2**2+x**2+z**2-self.l3**2)/(2 * self.l2 * np.sqrt(x**2+z**2))
+        # alpha1 = np.arccos(cos_alpha1)
+        # theta2_rad =  alpha1 - np.arctan2(x,z)
 
         # print("alpha=={},alpha2=={}".format(np.rad2deg(alpha1), np.rad2deg( np.arctan2(x,z)  )))
+
+        alpha = theta3_rad/2
+        theta2_rad =  np.pi/2 - theta3_rad/2  - np.arctan2(x,z)
+        # print("arctan2=={}".format(np.arctan2(x,z)) )
 
         return -theta2_rad, theta3_rad
 
@@ -190,24 +199,24 @@ class Leg():
         LF[2] = LF[2]-np.deg2rad(135)
 
 
-        RF[1] = RF[1] - np.deg2rad(2)
+        RF[1] = RF[1] - np.deg2rad(2) + np.deg2rad(17.5)
         # RF[2] = RF[2] - np.deg2rad(40)
-        RF[2] = RF[2] - np.deg2rad(140)
+        RF[2] = RF[2] - np.deg2rad(140)+np.deg2rad(5) -0.07
 
 
-        LB[1] = LB[1] + np.deg2rad(3)
+        LB[1] = LB[1] + np.deg2rad(3)+ np.deg2rad(17.5)
         # LB[2] = LB[2] - np.deg2rad(45)
-        LB[2] = LB[2] - np.deg2rad(135)
+        LB[2] = LB[2] - np.deg2rad(135)+np.deg2rad(5)
 
 
-        RB[1] = RB[1] + np.deg2rad(3)
+        RB[1] = RB[1] + np.deg2rad(3)+np.deg2rad(17.5)
         # RB[2] = RB[2] - np.deg2rad(45)
-        RB[2] = RB[2] - np.deg2rad(135)
+        RB[2] = RB[2] - np.deg2rad(135)+np.deg2rad(5)
 
-        self.joint_angle[0:3] += LF
-        self.joint_angle[3:6] += RF
-        self.joint_angle[6:9] += LB
-        self.joint_angle[9: ] += RB
+        # self.joint_angle[0:3] += LF
+        # self.joint_angle[3:6] += RF
+        # self.joint_angle[6:9] += LB
+        # self.joint_angle[9: ] += RB
 
 
         p.setJointMotorControl2(bodyIndex=body_name,

@@ -11,6 +11,7 @@ from woofh_robot import Robot
 import time
 from trajectory_generator import Bezier
 
+np.set_printoptions(suppress=True)
 
 class Dog(gym.Env):
     def __init__(self, render: bool = False , number_motor = 12):
@@ -19,14 +20,20 @@ class Dog(gym.Env):
         self.action_dim = number_motor
         self.action_bound = 1
         action_high = np.array([self.action_bound]*12)
+        # self.action_space = spaces.Box(
+        #     low=-action_high, high=action_high,
+        #     dtype=np.float32
+        # )
         self.action_space = spaces.Box(
-            low=-action_high, high=action_high,
+            low=-np.array([-1,-1,-1, -1,-1,-1, -1,-1,-1, -1,-1,-1]),
+            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1]),
             dtype=np.float32
         )
+
         self.physics_client_id = p.connect(p.GUI if self.render else p.DIRECT)
         self.step_num = 0
         self.leg = Leg("4leg")
-        self.robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
+        self.robot = p.loadURDF("../woofh/urdf/woofh_d.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
                                 flags=p.URDF_USE_IMPLICIT_CYLINDER,baseOrientation=p.getQuaternionFromEuler([np.pi / 2, 0, 0]))
         self.woofh = Robot(self.robot, physics_client_id=self.physics_client_id)
 
@@ -38,23 +45,29 @@ class Dog(gym.Env):
             dtype=np.float64
         )
 
-        self.dt = 0.02
-        self.forward_weight = 0.01
+        self.dt = 0.025
+        self.forward_weightX = 0.05
+        self.forward_weightY = 0.02
+        self.forwardV_weight = 0.01
         self.direction_weight = -0.001
-        self.shake_weight = -0.01
-        self.height_weight = -0.01
+        self.shake_weight = -0.005
+        self.height_weight = -0.005
         self.joint_weight = -0.001
         self.contact_weight  = 0.001
 
         self.pre_coorX= -0.04867
-        self.pre_height = 0.140
+        self.pre_height = 0.1365
 
         # params for gait controller
         self.gait_time = 0
         self.control_frequency = 20   # hz
         self.angleFromReferen = np.array([0]*12)
 
+        self.initial_count = 0
+        self.tg = Bezier(step_length=0.05)
 
+        # check everu part rewards
+        self.reward_detail = np.array([0.]*6, dtype=np.float32)
 
     def step(self, action):
 
@@ -62,7 +75,6 @@ class Dog(gym.Env):
 
         # self.angleFromReferen = tg.curve(self.gait_time)
         #
-
 
         self.apply_action(action)
         p.stepSimulation(physicsClientId=self.physics_client_id)
@@ -72,13 +84,9 @@ class Dog(gym.Env):
         reward_items  = self.woofh.get_reward_items()
 
         reward = self._reward(reward_items)
-        print("reward==={}".format(reward))
-
-        self.pre_coorX = reward_items[0]
-        self.pre_height = reward_items[10]
 
         # condition for stop
-        if self.step_num > 36000:
+        if self.step_num > 1000:
             done = True
         else:
             done = False
@@ -91,11 +99,36 @@ class Dog(gym.Env):
         p.resetSimulation(physicsClientId=self.physics_client_id)
         p.setGravity(0, 0, -9.8)
         p.setAdditionalSearchPath(pd.getDataPath())
+        p.changeDynamics(bodyUniqueId=self.robot, linkIndex=-1, mass=1.5)
         self.planeID = p.loadURDF("plane.urdf")
-        self.robot = p.loadURDF("../woofh/urdf/woofh.urdf", [0, 0, 0.7], useMaximalCoordinates=False,
+        self.robot = p.loadURDF("../woofh/urdf/woofh_d.urdf", [0, 0, 0.2], useMaximalCoordinates=False,
                                 flags=p.URDF_USE_IMPLICIT_CYLINDER,baseOrientation=p.getQuaternionFromEuler([np.pi / 2, 0, 0]))
         #  change the outlook
         self.woofh = Robot(self.robot, physics_client_id=self.physics_client_id)
+
+
+        self.reward_detail = np.array([0.] * 6, dtype=np.float32)
+        self.step_num = 0
+        self.leg.time_reset()
+        self.leg.positions_control2(self.robot, [0, -np.pi/4, np.pi/2],[0,  -np.pi/4  , np.pi/2    ],
+                                                [0, -np.pi/4, np.pi/2],[0,  -np.pi/4  , np.pi/2     ]  )
+
+        self.pre_coorX= -0.04867
+        self.pre_height = 0.1365
+
+
+
+        while self.initial_count <100:
+            self.initial_count+=1
+            self.leg.positions_control2(self.robot, [0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2],
+                                        [0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2])
+
+            self.woofh.motor_angle = np.hstack(([0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2],
+                                        [0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2]))
+            p.stepSimulation()
+
+
+
         return self.get_observation()
 
 
@@ -107,13 +140,15 @@ class Dog(gym.Env):
 
     def _reward(self,reward_items):
         x_coor = reward_items[0]
-        linearX = reward_items[1]
-        linearY,linearZ  = reward_items[2:4]
-        wx ,wy ,wz = reward_items[4:7]
-        r , p , y  = reward_items[7:10]
-        height = reward_items [10]
+        y_coor = reward_items[1]
 
-        contacts = reward_items[11:]
+        linearX = reward_items[2]
+        linearY,linearZ  = reward_items[3:5]
+        wx ,wy ,wz = reward_items[5:8]
+        r , p , y  = reward_items[8:11]
+        height = reward_items [11]
+
+        contacts = reward_items[12:]
         contact_reward = -1.
         if contacts[0]==1 and contacts[2]==1 and contacts[1]==0 and contacts[3]==0:
             contact_reward = 1.
@@ -121,14 +156,30 @@ class Dog(gym.Env):
             contact_reward = 1.
 
 
-
-        reward = self.forward_weight *   (x_coor-self.pre_coorX) + \
-                 self.forward_weight *    np.exp(-4*linearX) + \
+        reward = self.forward_weightX *   (x_coor-self.pre_coorX) + \
+                 -self.forward_weightY * (np.abs(y_coor)) + \
+                 self.forwardV_weight *    linearX/4 + \
                  self.direction_weight * (linearY**2+linearZ**2)+ \
                  self.shake_weight*      ( np.exp( -1/(wx**2+wy**2+wz**2) ))+ \
                  self.shake_weight*      ( r**2/2+p**2/2+y**2)+ \
-                 self.height_weight *    ( height-self.pre_height) +\
+                 self.height_weight *    ( np.abs(height-self.pre_height)) +\
                  self.contact_weight* contact_reward
+
+        # check every part rewards
+        forward_reward = self.forward_weightX *   (x_coor-self.pre_coorX)
+        forwardy_reward = -self.forward_weightY * np.abs(y_coor)
+        forward_Vreward = self.forwardV_weight *   linearX/4
+        direction_reward =   self.shake_weight*      ( np.exp( -1/(wx**2+wy**2+wz**2) ))+ self.shake_weight*  ( r**2/2+p**2/2+y**2)
+        height_reward = self.height_weight *    ( np.abs(height-self.pre_height))
+        contact_reard = self.contact_weight* contact_reward
+        reward_details = np.array([forward_reward,forwardy_reward,forward_Vreward,direction_reward,height_reward,contact_reard])
+        self.reward_detail+=reward_details
+
+
+        if self.step_num % 10 ==0:
+            self.pre_coorX = x_coor
+        self.pre_height = height
+
 
         return reward
 
@@ -142,9 +193,31 @@ class Dog(gym.Env):
         # self.leg.positions_control(self.robot, action_on_motor[0:3], action_on_motor[3:6],
         #                           action_on_motor[6:9], action_on_motor[9:12])
 
+        if self.step_num >= 0 and self.step_num <= 20:
+            random_force  = np.random.uniform(-12,12,3)
+            p.applyExternalForce(objectUniqueId=self.robot, linkIndex=-1,
+                             forceObj=[random_force[0], random_force[1],random_force[2]],
+                             posObj=[-0.04072342, 0.00893663, 0.13637926],
+                             flags=p.WORLD_FRAME
+                             )
+
+        x1,_,z1 = self.tg.curve_generator(self.leg.t1)
+        x2, _, z2 = self.tg.curve_generator(self.leg.t2)
+        theta1,theta2  =     self.leg.IK_2D(x1 ,-z1)
+        theta3, theta4 =     self.leg.IK_2D(x2 ,-z2)
+
+        self.angleFromReferen = np.array([0, theta1 ,theta2,0,theta3, theta4, 0, theta3 ,theta4, 0 , theta1 ,theta2])
+        action_on_motor =  self.merge_action(action)
+        self.leg.positions_control2(self.robot, action_on_motor[0:3], action_on_motor[3:6],
+                                  action_on_motor[6:9], action_on_motor[9:12])
 
 
-        self.leg.positions_control(self.robot, action[0][0:3],action[0][3:6],action[0][6:9],action[0][9:12])
+        # ---------------test for free control------------------------#
+        # self.leg.positions_control2( self.robot, [0, theta2 ,theta3], [0,theta4, theta5],
+        #                              [0,theta4, theta5], [0, theta2 ,theta3])
+        #
+        self.leg.t1+= self.dt
+        self.leg.t2+= self.dt
 
 
 
@@ -164,7 +237,7 @@ class Dog(gym.Env):
         self.physics_client_id = -1
 
     def merge_action(self,action):
-        action_on_motor = np.array([0]*12)
+
         LF = [0, 0, 0]
         RF = [0, 0, 0]
         LB = [0, 0, 0]
@@ -182,7 +255,9 @@ class Dog(gym.Env):
         LB[1:] = action[0][7:9] * np.deg2rad(15)
         RB[1:] = action[0][10:] * np.deg2rad(15)
 
-        return  np.hstack((LF, RF , LB, RB))+ self.angleFromReferen
+        action_on_motor = np.array([0] * 12)
+
+        return  np.hstack((LF, RF , LB, RB)) * 0.5+ self.angleFromReferen * 0.5
 
 
 
@@ -194,23 +269,47 @@ if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
     from stable_baselines3 import PPO
     env = Dog(render=True)
-    obs = env.reset()
+    model = PPO(policy = "MlpPolicy",env = env)
     p.setRealTimeSimulation(1)
-    model = PPO(policy = "MlpPolicy",env = env
+    all_episode_reward = []
+    episode_reward = 0
+    t1 = time.time()
+    for i in range(10000):
+        episode_reward = 0
+        obs = env.reset()
+        done = False
+        while True:
+            action = model.predict(obs)
+            action = np.array(action,dtype=object)
+            state ,reward ,done, _ = env.step(action)
+            episode_reward+=reward
+            if done:
+                break
+
+        all_episode_reward.append(episode_reward)
+        print("train=={}".format(i))
+
+        if i %50==0:
+            print('episode_reward==={}'.format(episode_reward))
+
+    file = open('gym_env/reward.txt','w')
+    file.write(str(all_episode_reward))
+    model.save('gym_env/train_result')
+
+
+    # model.load('gym_env/train_result')
+    # obs = env.reset()
+    # while True:
+    #     time.sleep(0.01)
+    #     action = model.predict(obs)
+    #     action = np.array(action,dtype=object)
+    #     state ,reward ,done, _ = env.step(action)
+    #     if done:
+    #         break
 
 
 
-                 )
 
-
-    while True:
-        time.sleep(0.5)
-        action = model.predict(obs)
-        action = np.array(action,dtype=object)
-        state ,reward ,done, _ = env.step(action)
-        print("state==={}".format(state))
-
-        if done:
-            break
-
+    # t2 = time.time()
+    # print(t2-t1)
     # check_env(env)
