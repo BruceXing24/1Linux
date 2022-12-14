@@ -13,9 +13,9 @@ class Leg():
         self.Max_velocity = 5
         #                    LF      RF     LB    RB
         self.joint_angle  = [0,0,0, 0,0,0 ,0,0,0 ,0,0,0]
-
         self.t1 = 0.
         self.t2 = -0.5
+
 
 
 

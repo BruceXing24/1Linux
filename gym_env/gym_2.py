@@ -20,15 +20,15 @@ class Dog(gym.Env):
         self.action_dim = number_motor
         self.action_bound = 1
         action_high = np.array([self.action_bound]*12)
-        # self.action_space = spaces.Box(
-        #     low=-action_high, high=action_high,
-        #     dtype=np.float32
-        # )
         self.action_space = spaces.Box(
-            low=-np.array([-1,-1,-1, -1,-1,-1, -1,-1,-1, -1,-1,-1]),
-            high=np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1]),
+            low=-action_high, high=action_high,
             dtype=np.float32
         )
+        # self.action_space = spaces.Box(
+        #     low= np.array([-1,-1,-1, -1,-1,-1, -1,-1,-1, -1,-1,-1]),
+        #     high=np.array([ 1, 1, 1,  1, 1, 1,  1, 1, 1,  1, 1, 1]),
+        #     dtype=np.float32
+        # )
 
         self.physics_client_id = p.connect(p.GUI if self.render else p.DIRECT)
         self.step_num = 0
@@ -66,8 +66,17 @@ class Dog(gym.Env):
         self.initial_count = 0
         self.tg = Bezier(step_length=0.05)
 
+        # optimize signal
+        self.opti_shoulder = np.deg2rad(5)
+        self.opti_kneeAhid = np.deg2rad(15)
+        self.referSignal  = 0.5
+        self.optimSignal = 0.5
+
+
         # check everu part rewards
         self.reward_detail = np.array([0.]*6, dtype=np.float32)
+
+
 
     def step(self, action):
 
@@ -80,13 +89,12 @@ class Dog(gym.Env):
         p.stepSimulation(physicsClientId=self.physics_client_id)
         self.step_num += 1
         state = self.get_observation()
-
         reward_items  = self.woofh.get_reward_items()
-
         reward = self._reward(reward_items)
+        roll, pitch ,yaw = self.woofh.get_imu()[2]
 
         # condition for stop
-        if self.step_num > 1000:
+        if self.step_num > 1000 or roll > np.deg2rad(35) or pitch >np.deg2rad(35) or yaw >np.deg2rad(35):
             done = True
         else:
             done = False
@@ -211,7 +219,7 @@ class Dog(gym.Env):
         self.leg.positions_control2(self.robot, action_on_motor[0:3], action_on_motor[3:6],
                                   action_on_motor[6:9], action_on_motor[9:12])
 
-
+        self.woofh.motor_angle = action_on_motor
         # ---------------test for free control------------------------#
         # self.leg.positions_control2( self.robot, [0, theta2 ,theta3], [0,theta4, theta5],
         #                              [0,theta4, theta5], [0, theta2 ,theta3])
@@ -244,20 +252,25 @@ class Dog(gym.Env):
         RB = [0, 0, 0]
 
         # shoulder optimize signal from -5° to 5 °
-        LF[0] = action[0][0] * np.deg2rad(5)
-        RF[0] = action[0][3] * np.deg2rad(5)
-        LB[0] = action[0][6] * np.deg2rad(5)
-        RB[0] = action[0][9] * np.deg2rad(5)
+        LF[0] = action[0] * self.opti_shoulder
+        RF[0] = action[3] * self.opti_shoulder
+        LB[0] = action[6] * self.opti_shoulder
+        RB[0] = action[9] * self.opti_shoulder
 
         # hip,knee optimize signal from -15° to 15 °
-        LF[1:] = action[0][1:3] * np.deg2rad(15)
-        RF[1:] = action[0][4:6] * np.deg2rad(15)
-        LB[1:] = action[0][7:9] * np.deg2rad(15)
-        RB[1:] = action[0][10:] * np.deg2rad(15)
+        LF[1:] = action[1:3] * self.opti_kneeAhid
+        RF[1:] = action[4:6] * self.opti_kneeAhid
+        LB[1:] = action[7:9] * self.opti_kneeAhid
+        RB[1:] = action[10:] * self.opti_kneeAhid
 
         action_on_motor = np.array([0] * 12)
+        # print("----------------------------")
+        # print(np.hstack((LF, RF , LB, RB)))
+        # print(self.angleFromReferen)
+        # print("****************************")
 
-        return  np.hstack((LF, RF , LB, RB)) * 0.5+ self.angleFromReferen * 0.5
+
+        return  np.hstack((LF, RF , LB, RB)) * self.optimSignal + self.angleFromReferen * self.referSignal
 
 
 
@@ -270,18 +283,22 @@ if __name__ == '__main__':
     from stable_baselines3 import PPO
     env = Dog(render=True)
     model = PPO(policy = "MlpPolicy",env = env)
-    p.setRealTimeSimulation(1)
+    # p.setRealTimeSimulation(1)
     all_episode_reward = []
     episode_reward = 0
     t1 = time.time()
-    for i in range(10000):
+    for i in range(1000):
         episode_reward = 0
         obs = env.reset()
         done = False
         while True:
+            time.sleep(0.01)
             action = model.predict(obs)
-            action = np.array(action,dtype=object)
-            state ,reward ,done, _ = env.step(action)
+            print(action)
+            # print(action[1])
+            # action = np.array(action,dtype=object).reshape(-1)
+            print("obs==={}".format(obs))
+            obs ,reward ,done, _ = env.step(action[0])
             episode_reward+=reward
             if done:
                 break
@@ -292,9 +309,9 @@ if __name__ == '__main__':
         if i %50==0:
             print('episode_reward==={}'.format(episode_reward))
 
-    file = open('gym_env/reward.txt','w')
-    file.write(str(all_episode_reward))
-    model.save('gym_env/train_result')
+    # file = open('gym_env/reward.txt','w')
+    # file.write(str(all_episode_reward))
+    # model.save('gym_env/train_result')
 
 
     # model.load('gym_env/train_result')
