@@ -69,7 +69,7 @@ class Dog(gym.Env):
         # optimize signal
         self.opti_shoulder = np.deg2rad(5)
         self.opti_kneeAhid = np.deg2rad(15)
-        self.referSignal  = 0.5
+        self.referSignal  = 1.
         self.optimSignal = 0.5
 
 
@@ -134,9 +134,6 @@ class Dog(gym.Env):
             self.woofh.motor_angle = np.hstack(([0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2],
                                         [0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2]))
             p.stepSimulation()
-
-
-
         return self.get_observation()
 
 
@@ -223,9 +220,9 @@ class Dog(gym.Env):
         # ---------------test for free control------------------------#
         # self.leg.positions_control2( self.robot, [0, theta2 ,theta3], [0,theta4, theta5],
         #                              [0,theta4, theta5], [0, theta2 ,theta3])
-        #
         self.leg.t1+= self.dt
         self.leg.t2+= self.dt
+
 
 
 
@@ -268,13 +265,67 @@ class Dog(gym.Env):
         # print(np.hstack((LF, RF , LB, RB)))
         # print(self.angleFromReferen)
         # print("****************************")
-
-
         return  np.hstack((LF, RF , LB, RB)) * self.optimSignal + self.angleFromReferen * self.referSignal
 
 
+    def train_model(self,train_episode,save_episode):
+        save_count = 1
+        all_episode_reward = []
+        for i in range(train_episode):
+            episode_reward = 0
+            obs = self.reset()
+            done = False
+            while True:
+                action = model.predict(obs)
+                obs ,reward ,done, _ = self.step(action[0])
+                episode_reward+=reward
+                if done:
+                    break
+            print('episode_reward==={}'.format(episode_reward))
+            all_episode_reward.append(episode_reward)
+            print("train=={}".format(i))
+
+            if i>1 and i %save_episode==0:
+                model.save('gym_env/train_result'+str(save_count))
+                save_count+=1
+        file = open('gym_env/reward.txt','w')
+        file.write(str(all_episode_reward))
 
 
+    def test_model(self,model_path,test_speed,):
+        model.load(model_path)
+        done = False
+        all_episode_reward = []
+        for i in range(10):
+            episode_reward = 0
+            obs = self.reset()
+            while True:
+                time.sleep(test_speed)
+                action = model.predict(obs)
+                obs ,reward ,done, _ = self.step(action[0])
+                episode_reward += reward
+                if done:
+                    break
+            all_episode_reward.append(episode_reward)
+        return all_episode_reward
+
+
+    def test_no_RL(self,test_round,test_speed):
+        done = False
+        self.optimSignal = 0
+        all_episode_reward = []
+        for i in range(test_round):
+            obs = self.reset()
+            episode_reward = 0
+            while True:
+                time.sleep(test_speed)
+                action = model.predict(obs)
+                obs, reward, done, _ = self.step(action[0])
+                episode_reward += reward
+                if done:
+                    break
+            all_episode_reward.append(episode_reward)
+        return all_episode_reward
 
 
 
@@ -283,46 +334,39 @@ if __name__ == '__main__':
     from stable_baselines3 import PPO
     env = Dog(render=True)
     model = PPO(policy = "MlpPolicy",env = env)
-    # p.setRealTimeSimulation(1)
+    p.setRealTimeSimulation(1)
     all_episode_reward = []
     episode_reward = 0
-    t1 = time.time()
-    for i in range(1000):
-        episode_reward = 0
-        obs = env.reset()
-        done = False
-        while True:
-            time.sleep(0.01)
-            action = model.predict(obs)
-            print(action)
-            # print(action[1])
-            # action = np.array(action,dtype=object).reshape(-1)
-            print("obs==={}".format(obs))
-            obs ,reward ,done, _ = env.step(action[0])
-            episode_reward+=reward
-            if done:
-                break
 
-        all_episode_reward.append(episode_reward)
-        print("train=={}".format(i))
 
-        if i %50==0:
-            print('episode_reward==={}'.format(episode_reward))
+    # env.train_model(100,5)
+    all_rewards = env.test_no_RL(5,0.01)
+    print(all_rewards)
+    # env.test_model(model_path='gym_env/train_result',test_speed=0.01)
 
+    # t1 = time.time()
+    # for i in range(10000):
+    #     episode_reward = 0
+    #     obs = env.reset()
+    #     done = False
+    #     while True:
+    #         action = model.predict(obs)
+    #         obs ,reward ,done, _ = env.step(action[0])
+    #         episode_reward+=reward
+    #         if done:
+    #             break
+    #     print('episode_reward==={}'.format(episode_reward))
+    #     all_episode_reward.append(episode_reward)
+    #     print("train=={}".format(i))
+    #
+    #     if i %50==0:
+    #         print('episode_reward==={}'.format(episode_reward))
+    #
     # file = open('gym_env/reward.txt','w')
     # file.write(str(all_episode_reward))
     # model.save('gym_env/train_result')
 
 
-    # model.load('gym_env/train_result')
-    # obs = env.reset()
-    # while True:
-    #     time.sleep(0.01)
-    #     action = model.predict(obs)
-    #     action = np.array(action,dtype=object)
-    #     state ,reward ,done, _ = env.step(action)
-    #     if done:
-    #         break
 
 
 
