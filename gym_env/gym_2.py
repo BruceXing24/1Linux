@@ -1,6 +1,7 @@
 # Fachhochschule Aachen
 # Name:Bruce_Xing
 # Time: 2022/11/26 10:00
+import torch
 import gym
 from gym import spaces
 import numpy as np
@@ -46,11 +47,11 @@ class Dog(gym.Env):
         )
 
         self.dt = 0.025
-        self.forward_weightX = 0.05
+        self.forward_weightX = 0.5 # 0.05
         self.forward_weightY = 0.02
-        self.forwardV_weight = 0.01
+        self.forwardV_weight = 0.03
         self.direction_weight = -0.001
-        self.shake_weight = -0.005
+        self.shake_weight = -0.003
         self.height_weight = -0.005
         self.joint_weight = -0.001
         self.contact_weight  = 0.001
@@ -113,8 +114,8 @@ class Dog(gym.Env):
                                 flags=p.URDF_USE_IMPLICIT_CYLINDER,baseOrientation=p.getQuaternionFromEuler([np.pi / 2, 0, 0]))
         #  change the outlook
         self.woofh = Robot(self.robot, physics_client_id=self.physics_client_id)
-
-
+        p.setPhysicsEngineParameter(
+            numSolverIterations=300)
         self.reward_detail = np.array([0.] * 6, dtype=np.float32)
         self.step_num = 0
         self.leg.time_reset()
@@ -134,6 +135,8 @@ class Dog(gym.Env):
             self.woofh.motor_angle = np.hstack(([0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2],
                                         [0, -np.pi / 4, np.pi / 2], [0, -np.pi / 4, np.pi / 2]))
             p.stepSimulation()
+
+        self.initial_count = 0
         return self.get_observation()
 
 
@@ -268,49 +271,57 @@ class Dog(gym.Env):
         return  np.hstack((LF, RF , LB, RB)) * self.optimSignal + self.angleFromReferen * self.referSignal
 
 
-    def train_model(self,train_episode,save_episode):
+    def train_model(self,train_episode,save_episode,model):
+        t1 = time.time()
         save_count = 1
         all_episode_reward = []
-        for i in range(train_episode):
+        for i in range(train_episode+1):
             episode_reward = 0
+            t2 = time.time()
             obs = self.reset()
-            done = False
+            t3 = time.time()
             while True:
+                t4 = time.time()
                 action = model.predict(obs)
                 obs ,reward ,done, _ = self.step(action[0])
                 episode_reward+=reward
                 if done:
                     break
+            t5 = time.time()
             print('episode_reward==={}'.format(episode_reward))
             all_episode_reward.append(episode_reward)
             print("train=={}".format(i))
+            t6 = time.time()
 
             if i>1 and i %save_episode==0:
                 model.save('gym_env/train_result'+str(save_count))
                 save_count+=1
+
+            print(t2-t1,t3-t2,t4-t3,t5-t4,t6-t5)
+
         file = open('gym_env/reward.txt','w')
         file.write(str(all_episode_reward))
 
 
-    def test_model(self,model_path,test_speed,):
-        model.load(model_path)
+    def test_model(self,test_model,test_speed,):
         done = False
         all_episode_reward = []
-        for i in range(10):
+        for i in range(5):
             episode_reward = 0
             obs = self.reset()
             while True:
                 time.sleep(test_speed)
-                action = model.predict(obs)
+                action = test_model.predict(obs)
                 obs ,reward ,done, _ = self.step(action[0])
                 episode_reward += reward
                 if done:
                     break
+            print("episode_reard==={}".format(episode_reward))
             all_episode_reward.append(episode_reward)
         return all_episode_reward
 
 
-    def test_no_RL(self,test_round,test_speed):
+    def test_no_RL(self,test_round,test_speed,model):
         done = False
         self.optimSignal = 0
         all_episode_reward = []
@@ -325,6 +336,8 @@ class Dog(gym.Env):
                 if done:
                     break
             all_episode_reward.append(episode_reward)
+            print( self.woofh.get_Global_Coor() )
+
         return all_episode_reward
 
 
@@ -332,18 +345,49 @@ class Dog(gym.Env):
 if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
     from stable_baselines3 import PPO
+    from stable_baselines3.common.evaluation import  evaluate_policy
+
+
+    device = [torch.cuda.device(i) for i in range((torch.cuda.device_count()))]
+    print(device)
+
+
     env = Dog(render=True)
-    model = PPO(policy = "MlpPolicy",env = env)
-    p.setRealTimeSimulation(1)
-    all_episode_reward = []
-    episode_reward = 0
+    model = PPO(policy = "MlpPolicy",env = env,device='cuda',batch_size=2048,verbose=1)
+    #
+    # model.learn(500000)
+    # model.save('gym_env/train_result_2')
+
+    reward = env.test_no_RL(10,0.001,model)
 
 
-    # env.train_model(100,5)
-    all_rewards = env.test_no_RL(5,0.01)
-    print(all_rewards)
-    # env.test_model(model_path='gym_env/train_result',test_speed=0.01)
+    print(reward)
+    # loaded_model = PPO.load('gym_env/train_result_2')
+    # mean_reward, std_reward = evaluate_policy(loaded_model, env, n_eval_episodes=10)
+    # print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
 
+
+    # model.load('gym_env/train_result')
+    # reward = env.test_model(test_model=model,test_speed=0.01)
+    # print(reward)
+
+    # t1 = time.time()
+    # model.learn(1000000)
+    # model.save('gym_env/train_result')
+
+
+    # # env.train_model(10,10)
+    #
+    # t2 = time.time()
+    #
+    # print(t2-t1)
+
+
+
+
+    # all_rewards = env.test_no_RL(5,0.01)
+    # print(all_rewards)
+    # env.test_no_RL(10,0.01)
     # t1 = time.time()
     # for i in range(10000):
     #     episode_reward = 0
