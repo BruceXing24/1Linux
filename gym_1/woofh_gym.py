@@ -23,7 +23,7 @@ class Woofh_gym(gym.Env):
         else:
             self._pybullet_client = bullet_client.BulletClient()
 
-        self.robot = self._pybullet_client.loadURDF("../model/urdf/woofh_d.urdf", [0, 0, 0.7],
+        self.robot = self._pybullet_client.loadURDF("../woofh/urdf/woofh_d.urdf", [0, 0, 0.7],
                                                     useMaximalCoordinates=False,
                                                     flags=self._pybullet_client.URDF_USE_IMPLICIT_CYLINDER,
                                                     baseOrientation=self._pybullet_client.getQuaternionFromEuler(
@@ -79,7 +79,7 @@ class Woofh_gym(gym.Env):
         self._pybullet_client.setGravity(0, 0, -9.8)
         self._pybullet_client.setAdditionalSearchPath(pd.getDataPath())
         self.planeID = self._pybullet_client.loadURDF("plane.urdf")
-        self.robot = self._pybullet_client.loadURDF("../model/urdf/woofh_d.urdf", [0, 0, 0.7],
+        self.robot = self._pybullet_client.loadURDF("../woofh/urdf/woofh_d.urdf", [0, 0, 0.7],
                                                     useMaximalCoordinates=False,
                                                     flags=p.URDF_USE_IMPLICIT_CYLINDER,
                                                     baseOrientation=p.getQuaternionFromEuler([np.pi / 2, 0, 0]))
@@ -254,11 +254,10 @@ class Woofh_gym(gym.Env):
             self.return_reward_details()
             print(self.reward_detail_dict)
             all_episode_reward.append(episode_reward)
-
+        print("all_episode_reward==={}".format(all_episode_reward))
         return all_episode_reward
 
-    def test_model(self, model_path, test_speed, ):
-        model.load(model_path)
+    def test_model(self, model, test_speed, ):
         all_episode_reward = []
         for i in range(10):
             episode_reward = 0
@@ -271,9 +270,13 @@ class Woofh_gym(gym.Env):
                 if done:
                     break
             all_episode_reward.append(episode_reward)
+            print("episode reward===={}".format(episode_reward))
+        all_episode_reward = np.array(all_episode_reward)
+        print("all_reward==={},average reward=={}".format(all_episode_reward,np.sum(all_episode_reward)/10 ))
+
         return all_episode_reward
 
-    def train_model(self, train_episode, save_episode):
+    def train_model(self, model ,train_episode, save_episode):
         save_count = 1
         all_episode_reward = []
         for i in range(train_episode):
@@ -301,12 +304,21 @@ if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
     from stable_baselines3 import PPO
 
-    env = Woofh_gym(render=False)
-    model = PPO(policy="MlpPolicy", env=env, batch_size=256, verbose=1, tensorboard_log="./result/")
+    env = Woofh_gym(render=True)
+    # model = PPO(policy="MlpPolicy", env=env, batch_size=256, verbose=1, tensorboard_log="./result/")
+    # # env.test_no_RL(model,5,0.01)
+    #
+    # t1 = time.time()
+    # model.learn(1500000)
+    # model.save('result/train_result_15m')
+    # t2 = time.time()
+    # print(t2-t1)
 
-    # model.learn(10000)
-    # model.save('result/train_result')
+    loaded_model=PPO.load('result/train_result_15m')
+    env.test_model(loaded_model,0.01)
 
-    env.test_no_RL(model,3,0)
+
+
+
 
     # check_env(env)
