@@ -332,16 +332,21 @@ class Dog(gym.Env):
 if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
     from stable_baselines3 import PPO
-    env = Dog(render=True)
-    model = PPO(policy = "MlpPolicy",env = env)
-    p.setRealTimeSimulation(1)
-    all_episode_reward = []
-    episode_reward = 0
+    env = Dog(render=False)
+    model = PPO(policy = "MlpPolicy",env = env,verbose=1)
+    # p.setRealTimeSimulation(1)
+    # all_episode_reward = []
+    # episode_reward = 0
 
+    t1 = time.time()
+    model.learn(10000)
+    t2 = time.time()
+
+    print(t2-t1)
 
     # env.train_model(100,5)
-    all_rewards = env.test_no_RL(5,0.01)
-    print(all_rewards)
+    # all_rewards = env.test_no_RL(5,0.01)
+    # print(all_rewards)
     # env.test_model(model_path='gym_env/train_result',test_speed=0.01)
 
     # t1 = time.time()
