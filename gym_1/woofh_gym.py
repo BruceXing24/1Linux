@@ -240,6 +240,7 @@ class Woofh_gym(gym.Env):
     def test_no_RL(self, model, test_round, test_speed):
         self.optimSignal = 0
         all_episode_reward = []
+        height_set = []
         for i in range(test_round):
             obs = self.reset()
             episode_reward = 0
@@ -247,6 +248,9 @@ class Woofh_gym(gym.Env):
                 time.sleep(test_speed)
                 action = model.predict(obs)
                 obs, reward, done, _ = self.step(action[0])
+                #  test for konrad
+                height=self.woofh.get_reward_items()[11]
+                height_set.append(height)
                 episode_reward += reward
                 if done:
                     break
@@ -255,26 +259,31 @@ class Woofh_gym(gym.Env):
             print(self.reward_detail_dict)
             all_episode_reward.append(episode_reward)
         print("all_episode_reward==={}".format(all_episode_reward))
-        return all_episode_reward
+        return all_episode_reward , height_set
 
-    def test_model(self, model, test_speed, ):
+    def test_model(self, model, test_round,test_speed, ):
         all_episode_reward = []
-        for i in range(10):
+        height_set = []
+        for i in range(test_round):
             episode_reward = 0
             obs = self.reset()
             while True:
                 time.sleep(test_speed)
                 action = model.predict(obs)
                 obs, reward, done, _ = self.step(action[0])
+                height=self.woofh.get_reward_items()[11]
+                height_set.append(height)
                 episode_reward += reward
                 if done:
                     break
             all_episode_reward.append(episode_reward)
             print("episode reward===={}".format(episode_reward))
+            self.return_reward_details()
+            print(self.reward_detail_dict)
         all_episode_reward = np.array(all_episode_reward)
         print("all_reward==={},average reward=={}".format(all_episode_reward,np.sum(all_episode_reward)/10 ))
 
-        return all_episode_reward
+        return all_episode_reward ,height_set
 
     def train_model(self, model ,train_episode, save_episode):
         save_count = 1
@@ -303,10 +312,23 @@ class Woofh_gym(gym.Env):
 if __name__ == '__main__':
     from stable_baselines3.common.env_checker import check_env
     from stable_baselines3 import PPO
+    import matplotlib.pyplot as plt
+
 
     env = Woofh_gym(render=True)
     # model = PPO(policy="MlpPolicy", env=env, batch_size=256, verbose=1, tensorboard_log="./result/")
-    # # env.test_no_RL(model,5,0.01)
+    # model = PPO(policy="MlpPolicy", env=env, batch_size=256, verbose=1)
+    # _, height_set=env.test_no_RL(model,3,0)
+
+
+
+
+
+
+
+    # plt.plot(height_set)
+    # plt.show()
+
     #
     # t1 = time.time()
     # model.learn(1500000)
@@ -315,7 +337,8 @@ if __name__ == '__main__':
     # print(t2-t1)
 
     loaded_model=PPO.load('result/train_result_15m')
-    env.test_model(loaded_model,0.01)
+    _, height_set = env.test_model(loaded_model,3,0.01)
+
 
 
 

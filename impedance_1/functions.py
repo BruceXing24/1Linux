@@ -3,12 +3,22 @@
 # Time: 2022/10/9 19:14
 import os
 import pybullet as p
-
+import numpy as np
 
 Force = 500
 Max_velocity = 3
 Position_Gain = 1
 Velocity_Gain = 1
+
+
+def IK_2D(self, x, z):
+    cos_theta3 = (x ** 2 + z ** 2 - (self.l2 ** 2 + self.l3 ** 2)) / (2 * self.l2 * self.l3)
+    theta3_rad = np.arccos(cos_theta3)
+    cos_alpha1 = (self.l2 ** 2 + x ** 2 + z ** 2 - self.l3 ** 2) / (2 * self.l2 * np.sqrt(x ** 2 + z ** 2))
+    alpha1 = np.arccos(cos_alpha1)
+    theta2_rad = alpha1 - np.arctan2(x, z)
+    # print("alpha=={},alpha2=={}".format(np.rad2deg(alpha1), np.rad2deg(np.arctan2(x, z))))
+    return theta2_rad, theta3_rad
 
 
 def positions_control(body_name,LF, RF ,LH, RH):
