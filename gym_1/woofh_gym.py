@@ -43,10 +43,10 @@ class Woofh_gym(gym.Env):
 
         self.dt = 0.025  # should be related to leg control frequency
         self.forward_weightX = 0.015
-        self.forward_weightY = 0.01
+        self.forward_weightY = 0.015
         self.forwardV_weight = 0.01
         self.direction_weight = -0.001
-        self.shake_weight = -0.005
+        self.shake_weight = -0.01
         self.height_weight = -0.05
         self.joint_weight = -0.001
         self.contact_weight = 0.001
@@ -281,7 +281,7 @@ class Woofh_gym(gym.Env):
             self.return_reward_details()
             print(self.reward_detail_dict)
         all_episode_reward = np.array(all_episode_reward)
-        print("all_reward==={},average reward=={}".format(all_episode_reward,np.sum(all_episode_reward)/10 ))
+        print("all_reward==={},average reward=={}".format(all_episode_reward,np.sum(all_episode_reward)/test_round ))
 
         return all_episode_reward ,height_set
 
@@ -326,17 +326,18 @@ if __name__ == '__main__':
 
 
 
-    # plt.plot(height_set)
-    # plt.show()
 
-    #
     # t1 = time.time()
-    # model.learn(1500000)
-    # model.save('result/train_result_15m')
+    # model.learn(2000000)
+    # model.save('result/train_result_2m')
     # t2 = time.time()
     # print(t2-t1)
 
-    loaded_model=PPO.load('result/train_result_15m')
+
+
+
+
+    loaded_model=PPO.load('result/train_result_2m')
     _, height_set = env.test_model(loaded_model,3,0.01)
 
 
